@@ -11,7 +11,7 @@
 #CMD ["./app"]
 
 # =============== build stage ===============
-FROM golang:1.17.12 AS build
+FROM golang:1.19.1 AS build
 
 RUN mkdir -p /app
 
@@ -36,4 +36,4 @@ FROM chromedp/headless-shell:latest
 
 WORKDIR /app
 COPY --from=build /app/chromedp-test ./
-ENTRYPOINT ["chromedp-test"]
+ENTRYPOINT ["/app/chromedp-test"]

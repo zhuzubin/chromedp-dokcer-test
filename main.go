@@ -14,7 +14,27 @@ import (
 )
 
 func main() {
-	// create chrome instance
+	urls := []string{
+		"https://www.amazon.co.jp",
+		"https://www.amazon.de",
+		"https://www.amazon.co.uk",
+		"https://www.amazon.com",
+		"https://www.amazon.ca",
+	}
+
+	for _, url := range urls {
+		println("抓取地址:" + url)
+		go doScraper(url)
+
+		println(fmt.Sprintf("url:%s  抓取成功", url))
+	}
+
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, os.Interrupt)
+	<-ch
+}
+
+func doScraper(url string) {
 	aCtx, aCancel := chromedp.NewExecAllocator(context.Background(), []chromedp.ExecAllocatorOption{
 		chromedp.Flag("headless", true), // debug使用
 		chromedp.Flag("disable-gpu", true),
@@ -25,7 +45,6 @@ func main() {
 		chromedp.WindowSize(1920, 1080),
 		chromedp.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"),
 		chromedp.ProxyServer("196.51.137.209:8800"),
-		chromedp.ExecPath("/headless-shell/headless-shell"),
 	}...)
 	defer aCancel()
 	ctx, cancel := chromedp.NewContext(
@@ -39,22 +58,19 @@ func main() {
 	defer cancel()
 
 	err := chromedp.Run(ctx,
-		chromedp.Navigate(`https://www.amazon.co.jp`),
+		chromedp.Navigate(url),
 	)
 	err = chromedp.Run(ctx, chromedp.Tasks{
 		chromedp.ActionFunc(func(ctx context.Context) error {
+			//title
 			chromedp.Run(ctx, chromedp.Sleep(3*time.Second))
-			html := ""
-			chromedp.Run(ctx, chromedp.OuterHTML(`html`, &html))
-			fmt.Println(html)
+			title := ""
+			chromedp.Run(ctx, chromedp.OuterHTML(`//title`, &title))
+			log.Println(title)
 			return nil
 		}),
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err.Error())
 	}
-
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt)
-	<-ch
 }
