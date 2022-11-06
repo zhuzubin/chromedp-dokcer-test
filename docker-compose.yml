@@ -1,12 +1,12 @@
-version: '3'
-services:
-  chromedp:
-    image: chromedp/headless-shell
-    ports:
-      - 9222:9222
-  goservice:
-    build: .
-    links:
-      - chromedp
-    depends_on:
-      - chromedp
+#version: '3'
+#services:
+#  chromedp:
+#    image: chromedp/headless-shell
+#    ports:
+#      - 9222:9222
+#  goservice:
+#    build: .
+#    links:
+#      - chromedp
+#    depends_on:
+#      - chromedp
